@@ -3,22 +3,23 @@ import numpy as np
 import sys
 from tqdm import tqdm
 
-# python hanoi_tower.py -populationSize=100 -generations=100 -cRate=1.0 -mRate=0.01 -seed=ran -towers=3 -disks=3 -max_moves=20
 
 def main(argv):
-   
+
     try:
-        assert int(argv[6].split('=')[1].replace(" ", "")) <= int(argv[5].split('=')[1].replace(" ", "")), "Number of disks should be <= number of towers"
+        assert int(argv[6].split('=')[1].replace(" ", "")) <= int(
+            argv[5].split('=')[1].replace(
+                " ", "")), "Number of disks should be <= number of towers"
     except AssertionError as e:
-        raise    
-    
-    if str(argv[4].split('=')[1].replace(" ", ""))=='ran':
+        raise
+
+    if str(argv[4].split('=')[1].replace(" ", "")) == 'ran':
         seed = random.random()
     else:
         seed = int(argv[4].split('=')[1].replace(" ", ""))
 
     geneticAlgorithm(
-        populationSize=int(argv[0].split('=')[1].replace(" ", "")), 
+        populationSize=int(argv[0].split('=')[1].replace(" ", "")),
         generations=int(argv[1].split('=')[1].replace(" ", "")),
         cRate=float(argv[2].split('=')[1].replace(" ", "")),
         mRate=float(argv[3].split('=')[1].replace(" ", "")),
@@ -34,8 +35,8 @@ def geneticAlgorithm(populationSize, generations, cRate, mRate, seed, towers,
     global population
     global fitness
     global nb_bits_move
-    global possible_moves 
-    
+    global possible_moves
+
     pbar = tqdm(total=generations)
     nb_bits_move, nbBits, possible_moves = get_moves(towers, max_moves)
 
@@ -89,7 +90,7 @@ def createIndividual():
 
 def evaluate(index, towers, disks, visualize, sol=None):
     eval = 0
-    game = np.full((disks,towers),'-')
+    game = np.full((disks, towers), '-')
     for i in range(disks):
         game[i][0] = i
     if visualize:
@@ -98,8 +99,9 @@ def evaluate(index, towers, disks, visualize, sol=None):
         print(game)
         element = sol
     element = population[index]
-    for slice in range(len(element)//nb_bits_move):
-        code = element[slice*nb_bits_move:slice*nb_bits_move+nb_bits_move]
+    for slice in range(len(element) // nb_bits_move):
+        code = element[slice * nb_bits_move:
+                       slice * nb_bits_move + nb_bits_move]
         if code in possible_moves.keys():
             move = possible_moves[code]
             if visualize:
@@ -113,26 +115,27 @@ def evaluate(index, towers, disks, visualize, sol=None):
             if row[-1] != '-':
                 eval = eval + 1
         fitness[index] = eval
-        
+
+
 def doMove(game, move, disks, visualize):
     start_tower = int(move[0])
     end_tower = int(move[-1])
     start_disk = None
     index_start_disk = None
-    
+
     # Look if game is completed
     completed = True
     for row in game:
         if row[-1] == '-':
             completed = False
-    
+
     if completed:
         if visualize:
             print("Game completed, move ignored.")
-    
+
     else:
         # Look if start_tower is empty
-        if game[disks-1][start_tower] == '-':
+        if game[disks - 1][start_tower] == '-':
             if visualize:
                 print("empty tower")
 
@@ -145,16 +148,16 @@ def doMove(game, move, disks, visualize):
                     break
 
             # Look if end_tower is empty
-            if game[disks-1][end_tower] == '-':
-                game[disks-1][end_tower] = start_disk
+            if game[disks - 1][end_tower] == '-':
+                game[disks - 1][end_tower] = start_disk
                 game[index_start_disk][start_tower] = '-'
 
             else:
                 # Look if disk can be put at end_tower
-                for i in range(disks-1):
+                for i in range(disks - 1):
                     if game[i][end_tower] == '-':
-                        if game[i+1][end_tower] != '-':
-                            if int(game[i+1][end_tower]) > start_disk:
+                        if game[i + 1][end_tower] != '-':
+                            if int(game[i + 1][end_tower]) > start_disk:
                                 game[i][end_tower] = str(start_disk)
                                 game[index_start_disk][start_tower] = '-'
                                 break
@@ -162,7 +165,7 @@ def doMove(game, move, disks, visualize):
                                 if visualize:
                                     print("invalid move")
     return game
-            
+
 
 def select(tournamentSize):
     pSize = len(population)
